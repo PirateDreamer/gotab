@@ -24,7 +24,6 @@ type Option struct {
 	HasJsonTag bool
 	HasGormTag bool
 	HasNote    bool
-	HasComment bool
 
 	// 模式
 	IsCli bool //cli、web模式
@@ -37,11 +36,23 @@ type Option struct {
 	OutDir      string   // 生成model文件目录，默认是当前项目的model目录
 
 	// 字段类型映射
-	mapType     int    // 1: 默认是读取map 2: 配置文件
-	mapTypeFile string // 配置文件地址,默认是当前项目的type.json
+	MapType     int    // 1: 默认是读取map 2: 配置文件
+	MapTypeFile string // 配置文件地址,默认是当前项目的type.json
 }
 
-type NewOption struct {
+func NewDefaultOption() *Option {
+	// 默认配置
+	return &Option{
+		HasTableName: true,
+		HasRmPrefix:  true,
+		HasGormTag:   true,
+		HasNote:      true,
+		IsCli:        true,
+		ConnType:     2,
+		AllTable:     true,
+		OutDir:       "./model",
+		MapType:      1,
+	}
 }
 
 type Options struct {
