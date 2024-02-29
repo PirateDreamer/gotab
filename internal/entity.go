@@ -41,7 +41,23 @@ type Option struct {
 	MapTypeFile string // 配置文件地址,默认是当前项目的type.json
 }
 
-var OptionInfo *Option
+func HandlerOption(option *Option) {
+	if option.SqlFilePath == "" {
+		if option.Dsn != "" {
+			option.ConnType = 1
+		} else {
+			if option.ConnPath != "" {
+				option.ConnType = 2
+			}
+		}
+	}
+	if option.TableNames == "" {
+		option.AllTable = true
+	}
+	if option.MapTypeFile != "" {
+		option.MapType = 2
+	}
+}
 
 type Options struct {
 	F func(*Option)

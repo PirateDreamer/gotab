@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/xwb1989/sqlparser"
 	"html/template"
 	"log"
 	"os"
@@ -12,14 +11,55 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/spf13/viper"
+	"github.com/xwb1989/sqlparser"
 )
 
 // 获取sql的途径，生成映射的途径
 
 // 获取createSql、解析sql、结构化、生成模版
 
-func Run() {
+func Run(option *Option) (err error) {
+	createSqls := make([]string, 0)
+	switch option.ConnType {
+	case 0:
+		// 读取sql文件
+	case 1:
+		if createSqls, err = getCreateTableSql(option); err != nil {
+			return
+		}
+	case 2:
+		viper.AddConfigPath(option.ConnPath)
+		viper.SetConfigName(filepath.Base(option.ConnPath))
+		viper.SetConfigType(strings.ReplaceAll(filepath.Ext(option.ConnPath), ".", ""))
+		if err = viper.ReadInConfig(); err != nil {
+			panic(err)
+			return
+		}
+		option.Dsn = viper.GetString("mysql.dsn")
+		// 解析读取配置文件中的yaml
+		if createSqls, err = getCreateTableSql(option); err != nil {
+			return
+		}
+	default:
+		log.Println("connType is error,support 0、1、2")
+		return
+	}
 
+	for _, v := range createSqls {
+		var paraseDDL *sqlparser.DDL
+		if paraseDDL, err = parseSql(v); err != nil {
+			return
+		}
+		modelData := convertSqlStruct(paraseDDL, option)
+		if err = generateTemplate(modelData, option); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func getCreateTableSql(option *Option) (createSQLs []string, err error) {
@@ -32,15 +72,15 @@ func getCreateTableSql(option *Option) (createSQLs []string, err error) {
 	// get tables name
 	tables := make([]string, 0)
 	if !option.AllTable {
-		tables = option.TableNames
+		tables = strings.Split(option.TableNames, ",")
 	} else {
 		query := "SHOW TABLES"
 		var rows *sql.Rows
 		rows, err = db.Query(query)
-		defer rows.Close()
 		if err != nil {
 			return
 		}
+		defer rows.Close()
 
 		for rows.Next() {
 			var tableName string
