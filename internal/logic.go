@@ -251,7 +251,7 @@ func (m *{{.ModelName}}) TableName() string {
 	}
 
 	// 规范代码结构
-	gofmtCmd := exec.Command("gofmt", "-w", option.OutDir+"/"+data.ModelName+".go")
+	gofmtCmd := exec.Command("gofmt", "-w", option.OutDir+"/"+data.TableName+".go")
 	err = gofmtCmd.Run()
 	if err != nil {
 		log.Fatalf("Failed to run gofmt command: %s\n", err)
@@ -259,7 +259,7 @@ func (m *{{.ModelName}}) TableName() string {
 	}
 
 	// 导入依赖包
-	goimportsCmd := exec.Command("goimports", "-w", option.OutDir+"/"+data.ModelName+".go")
+	goimportsCmd := exec.Command("goimports", "-w", option.OutDir+"/"+data.TableName+".go")
 	err = goimportsCmd.Run()
 	if err != nil {
 		log.Fatalf("Failed to run goimports command: %s\n", err)
