@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Houserqu/ginc"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/spf13/viper"
@@ -23,6 +24,7 @@ import (
 // 获取createSql、解析sql、结构化、生成模版
 
 func Run(option *Option) (err error) {
+	ginc.InitConfig()
 	createSqls := make([]string, 0)
 	switch option.ConnType {
 	case 0:
@@ -32,11 +34,10 @@ func Run(option *Option) (err error) {
 			return
 		}
 	case 2:
-		viper.AddConfigPath(option.ConnPath)
-		viper.SetConfigName(filepath.Base(option.ConnPath))
+		viper.SetConfigName(strings.ReplaceAll(filepath.Base(option.ConnPath), filepath.Ext(option.ConnPath), ""))
 		viper.SetConfigType(strings.ReplaceAll(filepath.Ext(option.ConnPath), ".", ""))
+		viper.AddConfigPath(filepath.Dir(option.ConnPath))
 		if err = viper.ReadInConfig(); err != nil {
-			panic(err)
 			return
 		}
 		option.Dsn = viper.GetString("mysql.dsn")
@@ -65,6 +66,7 @@ func Run(option *Option) (err error) {
 func getCreateTableSql(option *Option) (createSQLs []string, err error) {
 	var db *sql.DB
 	if db, err = sql.Open("mysql", option.Dsn); err != nil {
+		log.Printf("open mysql error: %v\n", err)
 		return
 	}
 	defer db.Close()
@@ -78,6 +80,7 @@ func getCreateTableSql(option *Option) (createSQLs []string, err error) {
 		var rows *sql.Rows
 		rows, err = db.Query(query)
 		if err != nil {
+			log.Printf("query mysql error: %v\n", err)
 			return
 		}
 		defer rows.Close()
@@ -86,6 +89,7 @@ func getCreateTableSql(option *Option) (createSQLs []string, err error) {
 			var tableName string
 			err = rows.Scan(&tableName)
 			if err != nil {
+				log.Printf("scan mysql error: %v\n", err)
 				return
 			}
 			tables = append(tables, tableName)
@@ -98,6 +102,7 @@ func getCreateTableSql(option *Option) (createSQLs []string, err error) {
 		var createSQL string
 		err = db.QueryRow(query).Scan(&tableName, &createSQL)
 		if err != nil {
+			log.Printf("query mysql error: %v\n", err)
 			return
 		}
 		createSQLs = append(createSQLs, createSQL)
@@ -228,13 +233,13 @@ func (m *{{.ModelName}}) TableName() string {
 	}
 
 	if err = CreateDir(filepath.Base(option.OutDir)); err != nil {
-		log.Printf("error creating a out dir: %s", err.Error())
+		log.Printf("error creating a out dir: %s\n", err.Error())
 		return
 	}
 
 	newFile, err := os.Create(option.OutDir + "/" + data.ModelName + ".go")
 	if err != nil {
-		log.Printf("error creating a model file: %s", err.Error())
+		log.Printf("error creating a model file: %s\n", err.Error())
 		return
 	}
 	defer newFile.Close()
@@ -249,7 +254,7 @@ func (m *{{.ModelName}}) TableName() string {
 	gofmtCmd := exec.Command("gofmt", "-w", option.OutDir+"/"+data.ModelName+".go")
 	err = gofmtCmd.Run()
 	if err != nil {
-		log.Fatalf("Failed to run gofmt command: %s", err)
+		log.Fatalf("Failed to run gofmt command: %s\n", err)
 		return
 	}
 
@@ -257,8 +262,10 @@ func (m *{{.ModelName}}) TableName() string {
 	goimportsCmd := exec.Command("goimports", "-w", option.OutDir+"/"+data.ModelName+".go")
 	err = goimportsCmd.Run()
 	if err != nil {
-		log.Fatalf("Failed to run goimports command: %s", err)
+		log.Fatalf("Failed to run goimports command: %s\n", err)
 	}
+
+	fmt.Println("gen model is end")
 	return
 }
 

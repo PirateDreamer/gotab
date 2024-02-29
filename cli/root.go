@@ -20,7 +20,7 @@ var model = cobra.Command{
 func InitModel(option *internal.Option) {
 	// 初始化model生成命令
 	model.Flags().StringVarP(&option.Dsn, "dsn", "d", "", "database dsn")
-	model.Flags().StringVarP(&option.ConnPath, "connPath", "c", "./config.yaml", "table name")
+	model.Flags().StringVarP(&option.ConnPath, "connPath", "c", "./config.yaml", "table connection file path,key is mysql.dsn")
 	model.Flags().StringVarP(&option.TableNames, "tables", "s", "", "table name")
 
 	model.Flags().StringVarP(&option.SqlFilePath, "sqlPath", "f", "", "if dns is exist,sql file path")
