@@ -237,7 +237,7 @@ func (m *{{.ModelName}}) TableName() string {
 		return
 	}
 
-	newFile, err := os.Create(option.OutDir + "/" + data.ModelName + ".go")
+	newFile, err := os.Create(option.OutDir + "/" + data.TableName + ".go")
 	if err != nil {
 		log.Printf("error creating a model file: %s\n", err.Error())
 		return
