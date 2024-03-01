@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/Houserqu/ginc"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -13,7 +14,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Houserqu/ginc"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/spf13/viper"
@@ -25,8 +25,7 @@ import (
 // 获取createSql、解析sql、结构化、生成模版
 
 func Run(option *Option) (err error) {
-	ginc.InitConfig()
-	createSqls := make([]string, 0)
+	var createSqls []string
 	switch option.ConnType {
 	case 0:
 		// 读取sql文件
@@ -35,11 +34,13 @@ func Run(option *Option) (err error) {
 			return
 		}
 		createSqls = strings.Split(string(sqlByte), ";")
+		createSqls = createSqls[:len(createSqls)-1]
 	case 1:
 		if createSqls, err = getCreateTableSql(option); err != nil {
 			return
 		}
 	case 2:
+		ginc.InitConfig()
 		viper.SetConfigName(strings.ReplaceAll(filepath.Base(option.ConnPath), filepath.Ext(option.ConnPath), ""))
 		viper.SetConfigType(strings.ReplaceAll(filepath.Ext(option.ConnPath), ".", ""))
 		viper.AddConfigPath(filepath.Dir(option.ConnPath))
@@ -66,6 +67,7 @@ func Run(option *Option) (err error) {
 			return
 		}
 	}
+	log.Println("gen model is end")
 	return
 }
 
@@ -150,6 +152,7 @@ func convertSqlStruct(ddl *sqlparser.DDL, option *Option) (data ModelData) {
 		if fileInfo.Type.Comment != nil {
 			file.COMMENT = string(fileInfo.Type.Comment.Val)
 		}
+		file.GormTag += ";type:" + fileInfo.Type.DescribeType()
 		if fileInfo.Name.String() == ddl.TableSpec.Indexes[0].Columns[0].Column.String() {
 			file.GormTag += ";primary_key"
 		}
@@ -270,8 +273,6 @@ func (m *{{.ModelName}}) TableName() string {
 	if err != nil {
 		log.Fatalf("Failed to run goimports command: %s\n", err)
 	}
-
-	fmt.Println("gen model is end")
 	return
 }
 
