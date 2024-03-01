@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -29,6 +30,11 @@ func Run(option *Option) (err error) {
 	switch option.ConnType {
 	case 0:
 		// 读取sql文件
+		var sqlByte []byte
+		if sqlByte, err = ioutil.ReadFile(option.SqlFilePath); err != nil {
+			return
+		}
+		createSqls = strings.Split(string(sqlByte), ";")
 	case 1:
 		if createSqls, err = getCreateTableSql(option); err != nil {
 			return
