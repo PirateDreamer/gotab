@@ -1,10 +1,9 @@
-package internal
+package logic
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Houserqu/ginc"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -13,6 +12,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/Houserqu/ginc"
 
 	_ "github.com/go-sql-driver/mysql"
 

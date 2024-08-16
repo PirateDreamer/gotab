@@ -1,4 +1,4 @@
-package internal
+package logic
 
 type Field struct {
 	Name    string

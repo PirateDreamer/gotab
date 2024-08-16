@@ -1,14 +1,14 @@
 package main
 
 import (
-	"gotab/cli"
-	"gotab/internal"
+	"github.com/PirateDreamer/gotab/cli"
+	"github.com/PirateDreamer/gotab/logic"
 )
 
 func main() {
 	// 创建默认配置
-	option := &internal.Option{}
+	option := &logic.Option{}
 	cli.Execute(option)
-	internal.HandlerOption(option)
-	internal.Run(option)
+	logic.HandlerOption(option)
+	logic.Run(option)
 }

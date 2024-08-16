@@ -1,4 +1,4 @@
-package internal
+package logic
 
 // TypeMap Mapping relationships between database type and golang type
 var TypeMap = map[string]string{

@@ -2,22 +2,21 @@ package cli
 
 import (
 	"fmt"
-	"gotab/internal"
 	"os"
 
+	"github.com/PirateDreamer/gotab/logic"
 	"github.com/spf13/cobra"
 )
 
 var model = cobra.Command{
 	Use:   "model",
 	Short: "Generate model",
-	Long: `You can add model tags, JSON tags, and table tags to GORM, 
-												and remove table prefixes`,
+	Long:  `You can add model tags, JSON tags, and table tags to GORM,and remove table prefixes`,
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 }
 
-func InitModel(option *internal.Option) {
+func InitModel(option *logic.Option) {
 	// 初始化model生成命令
 	model.Flags().StringVarP(&option.Dsn, "dsn", "d", "", "database dsn")
 	model.Flags().StringVarP(&option.ConnPath, "connPath", "c", "./config.yaml", "table connection file path,key is mysql.dsn")
@@ -47,7 +46,7 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute(option *internal.Option) {
+func Execute(option *logic.Option) {
 	InitModel(option)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
