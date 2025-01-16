@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sql转化为gorm</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <textarea id="sql" style="width: 40%;height: 400px;"></textarea>
+
+    <textarea id="proto" style="width: 40%;height: 400px"></textarea>
+    <script>
+        const sqlInput = document.getElementById('sql');
+        const protoInput = document.getElementById('proto');
+        sqlInput.addEventListener('paste', function(event) {
+            // 获取粘贴的内容
+            const pastedText = event.clipboardData.getData('text');
+            axios.post('http://localhost:8080/sql_proto',{sql: pastedText})
+            .then(function(response) {
+                if (response.data.code != 0) {
+                    alert(response.data.msg)
+                }else{
+                    protoInput.textContent = response.data.data
+                }
+            })
+            .catch(function(error) {
+                alert("服务不见了")
+            });
+        });
+    </script>
+</body>
+</html>

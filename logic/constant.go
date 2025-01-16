@@ -10,3 +10,13 @@ var TypeMap = map[string]string{
 	"LONGTEXT": "string",
 	"BIGINT":   "int64",
 }
+
+var SqlProtoType = map[string]string{
+	"INT":      "int32",
+	"VARCHAR":  "string",
+	"TINYINT":  "int32",
+	"DATETIME": "int64",
+	"TEXT":     "string",
+	"LONGTEXT": "string",
+	"BIGINT":   "uint64",
+}
